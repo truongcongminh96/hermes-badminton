@@ -1,0 +1,409 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#041c1c" />
+    <title>Hermes CV / Trương Công Minh</title>
+    <style>
+      @font-face { font-family: Collapse; src: url("fonts/Collapse-Regular.woff2") format("woff2"); font-weight: 400; }
+      @font-face { font-family: Collapse; src: url("fonts/Collapse-Bold.woff2") format("woff2"); font-weight: 700; }
+      @font-face { font-family: Mondwest; src: url("fonts/Mondwest-Regular.woff2") format("woff2"); }
+      @font-face { font-family: Rules; src: url("fonts/RulesExpanded-Regular.woff2") format("woff2"); font-weight: 400; }
+      @font-face { font-family: Rules; src: url("fonts/RulesExpanded-Bold.woff2") format("woff2"); font-weight: 700; }
+      @font-face { font-family: RulesCompressed; src: url("fonts/RulesCompressed-Regular.woff2") format("woff"); }
+      @font-face { font-family: JetBrains; src: url("fonts/JetBrainsMono-Regular.woff2") format("woff2"); }
+
+      :root {
+        --field: #041c1c;
+        --recessed: #020c0d;
+        --cream: #ffe6cb;
+        --white: #fffaf3;
+        --muted: #91aaa5;
+        --line: rgb(255 230 203 / 22%);
+        --line-soft: rgb(255 230 203 / 10%);
+        --amber: #ffbd38;
+        --success: #79e6a3;
+        --display: Collapse, Georgia, serif;
+        --ui: Rules, Arial, sans-serif;
+        --label: RulesCompressed, Arial Narrow, sans-serif;
+        --data: JetBrains, monospace;
+        --filler-opacity: .033;
+        --filler-blend: difference;
+        --vignette-color: var(--amber);
+        --noise-blend: color-dodge;
+        --noise-opacity: .55;
+      }
+
+      * { box-sizing: border-box; }
+      html { background: var(--field); scroll-behavior: smooth; }
+      body {
+        margin: 0;
+        color: var(--cream);
+        background: var(--field);
+        font-family: var(--ui);
+        -webkit-font-smoothing: antialiased;
+        min-height: 100vh;
+      }
+
+      .backdrop-grid,
+      .backdrop-filler,
+      .backdrop-vignette,
+      .backdrop-noise {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+      }
+
+      .backdrop-grid {
+        z-index: 0;
+        opacity: .2;
+        background-image:
+          linear-gradient(rgb(255 230 203 / 5.5%) 1px, transparent 1px),
+          linear-gradient(90deg, rgb(255 230 203 / 5.5%) 1px, transparent 1px);
+        background-size: 48px 48px;
+        mask-image: linear-gradient(to bottom, #000, transparent 82%);
+      }
+
+      .backdrop-filler {
+        z-index: 0;
+        opacity: var(--filler-opacity);
+        background: url("images/hermes-bg.webp") center top / cover no-repeat;
+        filter: invert(1);
+        mix-blend-mode: var(--filler-blend);
+      }
+
+      .backdrop-vignette {
+        z-index: 0;
+        background: radial-gradient(ellipse at 0% 0%, transparent 60%, var(--vignette-color) 100%);
+        mix-blend-mode: lighten;
+        opacity: .22;
+      }
+
+      .backdrop-noise {
+        z-index: 2;
+        content: "";
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' fill='%23eaeaea' filter='url(%23n)' opacity='.6'/%3E%3C/svg%3E");
+        background-size: 512px 512px;
+        mix-blend-mode: var(--noise-blend);
+        opacity: var(--noise-opacity);
+      }
+
+      a { color: inherit; text-decoration: none; }
+      button { font: inherit; }
+      .page { width: min(100% - 2rem, 1440px); margin: 0 auto; position: relative; z-index: 1; }
+
+      .topbar {
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        align-items: center;
+        min-height: 72px;
+        border-inline: 1px solid var(--line);
+        border-bottom: 1px solid var(--line);
+        padding: 0 1.2rem;
+      }
+      .brand, .top-meta, .eyebrow, .section-index, .label, .status, .stamp, .toc a {
+        font-family: var(--data);
+        text-transform: uppercase;
+        letter-spacing: .12em;
+        font-size: .64rem;
+      }
+      .brand { display: inline-flex; align-items: center; gap: .55rem; color: var(--white); }
+      .brand-logo { width: 2rem; height: 1.7rem; object-fit: contain; filter: grayscale(1) brightness(2.1) contrast(.8); opacity: .9; }
+      .brand b { color: var(--amber); font-weight: 400; }
+      .top-meta { justify-self: end; color: var(--muted); text-align: right; }
+      .signal { color: var(--success); }
+      .status::before { content: ""; display: inline-block; width: .42rem; height: .42rem; margin-right: .45rem; background: var(--success); box-shadow: 0 0 12px var(--success); }
+      .theme-trigger { display: grid; gap: .2rem; border: 0; padding: .35rem .55rem; color: var(--cream); background: transparent; cursor: pointer; text-align: left; }
+      .theme-trigger:hover, .theme-trigger:focus-visible { color: var(--amber); outline: 1px solid var(--line); outline-offset: 3px; }
+      .theme-trigger-label { color: var(--muted); font-family: var(--data); font-size: .55rem; letter-spacing: .16em; text-transform: uppercase; }
+      .theme-trigger-name { font-family: var(--ui); font-size: .78rem; letter-spacing: .02em; text-transform: uppercase; }
+
+      .hero {
+        display: grid;
+        grid-template-columns: minmax(0, 1.18fr) minmax(18rem, .82fr);
+        min-height: 650px;
+        border-inline: 1px solid var(--line);
+        border-bottom: 1px solid var(--line);
+      }
+      .hero-main { padding: clamp(2rem, 7vw, 7.2rem) clamp(1.3rem, 5vw, 5rem) 4rem; border-right: 1px solid var(--line); }
+      .eyebrow { color: var(--amber); margin-bottom: 2.2rem; }
+      h1 { max-width: 8ch; margin: 0; color: var(--white); font-family: var(--display); font-size: clamp(5rem, 12vw, 12.8rem); font-weight: 700; letter-spacing: -.075em; line-height: .76; }
+      h1 em { color: var(--cream); font-style: normal; }
+      .hero-summary { max-width: 38rem; margin: 3.5rem 0 0; color: var(--muted); font-family: var(--data); font-size: .78rem; line-height: 1.8; }
+      .hero-summary strong { color: var(--cream); font-weight: 400; }
+      .hero-side { display: grid; grid-template-rows: 1fr auto; position: relative; overflow: hidden; background: rgb(2 12 13 / .36); }
+      .portal-art { position: absolute; z-index: 0; right: -12%; bottom: -2%; height: 112%; width: auto; max-width: none; opacity: .18; filter: grayscale(1) contrast(1.08); mix-blend-mode: screen; pointer-events: none; }
+      .portrait-field { display: grid; place-items: center; position: relative; overflow: hidden; min-height: 420px; }
+      .portrait-field::before { content: "CM"; position: absolute; color: rgb(255 230 203 / .06); font-family: var(--display); font-size: clamp(12rem, 25vw, 27rem); line-height: .7; letter-spacing: -.12em; }
+      .portrait-mark { position: relative; width: min(58%, 17rem); aspect-ratio: 4 / 5; overflow: hidden; border: 1px solid var(--line); background: linear-gradient(135deg, rgb(255 230 203 / .06), transparent 40%), repeating-linear-gradient(135deg, transparent 0 14px, rgb(255 230 203 / .08) 15px 16px); display: grid; place-items: end start; padding: .9rem; z-index: 1; }
+      .portrait-mark img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: grayscale(1) invert(1) contrast(1.12); mix-blend-mode: screen; opacity: .62; }
+      .portrait-mark span { color: var(--amber); font-family: var(--data); font-size: .62rem; }
+      .hero-contact { display: grid; gap: .9rem; border-top: 1px solid var(--line); padding: 1.25rem; }
+      .contact-row { display: flex; justify-content: space-between; gap: 1rem; color: var(--muted); font-family: var(--data); font-size: .7rem; }
+      .contact-row a { color: var(--cream); }
+
+      .toc { display: flex; flex-wrap: wrap; gap: 1.2rem; padding: 1rem 1.2rem; border-inline: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+      .toc a { color: var(--muted); transition: color .18s ease; }
+      .toc a:hover, .toc a:focus-visible { color: var(--amber); }
+
+      .section { border-inline: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+      .section-head { display: grid; grid-template-columns: 4.5rem 1fr auto; align-items: baseline; gap: 1rem; padding: 1.1rem 1.2rem; border-bottom: 1px solid var(--line); }
+      .section-index { color: var(--amber); }
+      h2 { margin: 0; font-size: clamp(1.35rem, 3vw, 2.6rem); font-weight: 700; letter-spacing: -.045em; line-height: 1; }
+      .section-note { color: var(--muted); font-family: var(--data); font-size: .62rem; }
+
+      .experience { display: grid; grid-template-columns: 1.1fr 1.9fr; }
+      .experience + .experience { border-top: 1px solid var(--line); }
+      .experience-meta { padding: 1.5rem 1.2rem; border-right: 1px solid var(--line); }
+      .experience-meta h3 { margin: .35rem 0 .5rem; font-size: 1.2rem; font-weight: 700; }
+      .role { color: var(--amber); font-family: var(--data); font-size: .67rem; }
+      .experience-meta p, .experience-body p { color: var(--muted); line-height: 1.65; }
+      .experience-meta p { font-family: var(--data); font-size: .7rem; }
+      .experience-body { padding: 1.5rem 1.2rem 1.8rem; }
+      .experience-body p { max-width: 60ch; margin: 0 0 1.2rem; font-size: .96rem; }
+      .tags { display: flex; flex-wrap: wrap; gap: .4rem; }
+      .tag { border: 1px solid var(--line); padding: .35rem .5rem; color: var(--cream); font-family: var(--data); font-size: .6rem; }
+
+      .split { display: grid; grid-template-columns: 1fr 1fr; }
+      .split > * + * { border-left: 1px solid var(--line); }
+      .capability-list, .education-list { display: grid; }
+      .capability, .education { display: grid; grid-template-columns: 1fr auto; gap: 1rem; padding: 1.2rem; border-bottom: 1px solid var(--line-soft); }
+      .capability:last-child, .education:last-child { border-bottom: 0; }
+      .capability b, .education b { font-size: .9rem; }
+      .capability span, .education span { color: var(--muted); font-family: var(--data); font-size: .67rem; text-align: right; }
+      .education { grid-template-columns: 1fr; }
+      .education small { color: var(--amber); font-family: var(--data); font-size: .65rem; }
+      .education p { margin: 0; color: var(--muted); font-size: .85rem; line-height: 1.5; }
+
+      .footer { display: grid; grid-template-columns: 1fr auto; gap: 1rem; padding: 1.2rem; border-inline: 1px solid var(--line); border-bottom: 1px solid var(--line); color: var(--muted); font-family: var(--data); font-size: .62rem; }
+      .footer button { border: 1px solid var(--cream); background: transparent; color: var(--cream); cursor: pointer; padding: .7rem .85rem; text-transform: uppercase; letter-spacing: .1em; font-size: .62rem; }
+      .footer button:hover, .footer button:focus-visible { border-color: var(--amber); color: var(--amber); }
+      .stamp { color: var(--amber); }
+
+      [hidden] { display: none !important; }
+      .theme-overlay { position: fixed; inset: 0; z-index: 10; background: rgb(2 12 13 / .34); }
+      .theme-panel { width: min(100% - 2rem, 34rem); max-height: min(90dvh, 48rem); overflow: auto; margin: 2rem 0 0 1rem; border: 1px solid var(--line); background: rgb(2 12 13 / 18%); box-shadow: none; backdrop-filter: blur(3px); }
+      .theme-panel-head { display: flex; align-items: center; justify-content: space-between; padding: 1rem 1.2rem; border-bottom: 1px solid var(--line); }
+      .theme-panel-head h2 { font-family: var(--data); font-size: .72rem; letter-spacing: .18em; text-transform: uppercase; }
+      .theme-close { border: 0; color: var(--muted); background: transparent; font-size: 1.2rem; cursor: pointer; }
+      .theme-close:hover, .theme-close:focus-visible { color: var(--amber); }
+      .theme-list { display: grid; }
+      .theme-option { display: grid; grid-template-columns: 4.6rem 1fr auto; align-items: center; gap: .9rem; width: 100%; border: 0; border-bottom: 1px solid var(--line-soft); padding: 1.05rem 1.2rem; color: var(--cream); background: transparent; cursor: pointer; text-align: left; }
+      .theme-option:hover, .theme-option:focus-visible { background: color-mix(in srgb, var(--cream) 7%, transparent); }
+      .theme-option.is-active { background: color-mix(in srgb, var(--cream) 13%, transparent); background-image: linear-gradient(color-mix(in srgb, var(--cream) 10%, transparent), transparent), url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' fill='%23eaeaea' filter='url(%23n)' opacity='.34'/%3E%3C/svg%3E"); background-size: auto, 512px 512px; background-blend-mode: normal, color-dodge; }
+      .theme-option:last-child { border-bottom: 0; }
+      .theme-swatch { display: grid; grid-template-columns: repeat(3, 1fr); height: 1.7rem; border: 1px solid var(--line); }
+      .theme-swatch i { display: block; }
+      .theme-copy { display: grid; gap: .2rem; }
+      .theme-copy strong { font-family: var(--display); font-size: 1.1rem; font-weight: 400; letter-spacing: -.02em; text-transform: uppercase; }
+      .theme-copy span { color: var(--muted); font-family: var(--display); font-size: .88rem; line-height: 1.2; }
+      .theme-check { color: var(--amber); font-size: 1.1rem; opacity: 0; }
+      .theme-option.is-active .theme-check { opacity: 1; }
+      body.theme-large .topbar { min-height: 82px; }
+      body.theme-large .hero-main { padding-top: clamp(2.5rem, 8vw, 8rem); padding-bottom: 5rem; }
+      body.theme-large .hero-summary { max-width: 42rem; font-size: .86rem; }
+      body.theme-large .section-head, body.theme-large .experience-meta, body.theme-large .experience-body, body.theme-large .capability, body.theme-large .education { padding-block: 1.45rem; }
+
+      @media (max-width: 760px) {
+        .page { width: min(100% - 1rem, 1440px); }
+        .topbar { grid-template-columns: 1fr auto; min-height: 58px; }
+        .topbar .status { display: none; }
+        .hero { grid-template-columns: 1fr; min-height: 0; }
+        .hero-main { border-right: 0; padding: 3.5rem 1.2rem 3rem; }
+        h1 { font-size: clamp(4.8rem, 23vw, 8rem); }
+        .hero-summary { margin-top: 2.8rem; }
+        .hero-side { border-top: 1px solid var(--line); }
+        .portrait-field { min-height: 16rem; }
+        .portrait-mark { width: 9rem; }
+        .section-head { grid-template-columns: 3rem 1fr; }
+        .section-note { grid-column: 2; }
+        .experience, .split { grid-template-columns: 1fr; }
+        .experience-meta { border-right: 0; border-bottom: 1px solid var(--line-soft); }
+        .split > * + * { border-left: 0; border-top: 1px solid var(--line); }
+        .footer { grid-template-columns: 1fr; }
+        .footer button { justify-self: start; }
+        .theme-panel { margin: 1rem auto 0; }
+        .theme-option { grid-template-columns: 3.8rem 1fr auto; padding-inline: .9rem; }
+      }
+
+      @media print {
+        .backdrop-grid, .backdrop-filler, .backdrop-vignette, .backdrop-noise { display: none; }
+        .toc, .footer button { display: none; }
+        .page { width: 100%; }
+        .hero { min-height: auto; }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .backdrop-noise { display: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="backdrop-grid" aria-hidden="true"></div>
+    <div class="backdrop-filler" aria-hidden="true"></div>
+    <div class="backdrop-vignette" aria-hidden="true"></div>
+    <div class="backdrop-noise" aria-hidden="true"></div>
+    <main class="page">
+      <header class="topbar">
+        <div class="brand"><img class="brand-logo" src="images/logo.svg" alt="" /> <span>HERMES <b>/ CV_01</b></span></div>
+        <button class="theme-trigger" id="theme-open" type="button" aria-haspopup="dialog" aria-controls="theme-overlay">
+          <span class="theme-trigger-label">Theme</span>
+          <span class="theme-trigger-name" id="active-theme-name">Hermes Teal</span>
+        </button>
+        <div class="top-meta">Hanoi, VN / 2026</div>
+      </header>
+
+      <section class="hero" aria-labelledby="cv-name">
+        <div class="hero-main">
+          <div class="eyebrow">Product engineer / systems designer</div>
+          <h1 id="cv-name">Trương <em>Công</em> Minh</h1>
+          <p class="hero-summary"><strong>I build useful systems with a visible point of view.</strong><br />Product-minded engineer working across interfaces, automation and platform operations. Comfortable moving from a rough brief to a shipped, observable thing.</p>
+        </div>
+        <aside class="hero-side" aria-label="Portrait and contact">
+          <div class="portrait-field"><img class="portal-art" src="images/portal-figure.webp" alt="" /><div class="portrait-mark"><img src="images/identity.jpg" alt="Identity portrait" /><span>IDENTITY / 01</span></div></div>
+          <div class="hero-contact">
+            <div class="contact-row"><span>EMAIL</span><a href="mailto:minh@example.com">minh@example.com</a></div>
+            <div class="contact-row"><span>WEB</span><a href="#contact">minh.build</a></div>
+            <div class="contact-row"><span>BASE</span><span>HANOI / UTC+7</span></div>
+          </div>
+        </aside>
+      </section>
+
+      <nav class="toc" aria-label="CV sections">
+        <a href="#experience">01 / Experience</a>
+        <a href="#capabilities">02 / Capabilities</a>
+        <a href="#education">03 / Education</a>
+        <a href="#contact">04 / Contact</a>
+      </nav>
+
+      <section class="section" id="experience">
+        <div class="section-head"><span class="section-index">01</span><h2>Selected experience</h2><span class="section-note">2019 / present</span></div>
+        <article class="experience">
+          <div class="experience-meta"><span class="role">2024 / present</span><h3>MOTS / Ather Labs</h3><p>Product engineering<br />Hanoi, Vietnam</p></div>
+          <div class="experience-body"><p>Designing and shipping Hermes, a multi-platform agent system for real teams. Own the seam between product intent, operational safety and the last ten percent of interface polish.</p><div class="tags"><span class="tag">Product systems</span><span class="tag">React / TypeScript</span><span class="tag">Python</span><span class="tag">Ops UX</span></div></div>
+        </article>
+        <article class="experience">
+          <div class="experience-meta"><span class="role">2021 / 2024</span><h3>Independent / Studio work</h3><p>Product design + build<br />Remote</p></div>
+          <div class="experience-body"><p>Partnered with small teams to turn fuzzy ideas into focused tools, interfaces and launchable prototypes. Special interest in calm, high-signal software.</p><div class="tags"><span class="tag">Product direction</span><span class="tag">UX prototyping</span><span class="tag">Design systems</span></div></div>
+        </article>
+      </section>
+
+      <section class="section split" id="capabilities">
+        <div>
+          <div class="section-head"><span class="section-index">02</span><h2>Capabilities</h2><span class="section-note">working range</span></div>
+          <div class="capability-list">
+            <div class="capability"><b>Product architecture</b><span>STRONG</span></div>
+            <div class="capability"><b>Interface systems</b><span>STRONG</span></div>
+            <div class="capability"><b>Frontend engineering</b><span>STRONG</span></div>
+            <div class="capability"><b>Platform operations</b><span>DEEP</span></div>
+          </div>
+        </div>
+        <div id="education">
+          <div class="section-head"><span class="section-index">03</span><h2>Education</h2><span class="section-note">signal, not ceremony</span></div>
+          <div class="education-list">
+            <div class="education"><small>2015 / 2019</small><b>B.Sc. Computer Science</b><p>Systems thinking, software construction and the habit of learning in public.</p></div>
+            <div class="education"><small>CONTINUOUS</small><b>Field practice</b><p>Shipping, operating and revising products with real users and real constraints.</p></div>
+          </div>
+        </div>
+      </section>
+
+      <footer class="footer" id="contact">
+        <div><span class="stamp">OPEN TO /</span> product engineering, systems design and thoughtful collaborations<br /><span>Last updated 14 Aug 2026 / References available on request</span></div>
+        <button type="button" id="print-cv">Print / save PDF</button>
+      </footer>
+    </main>
+    <div class="theme-overlay" id="theme-overlay" hidden>
+      <aside class="theme-panel" role="dialog" aria-modal="true" aria-labelledby="theme-title">
+        <div class="theme-panel-head"><h2 id="theme-title">Theme</h2><button class="theme-close" id="theme-close" type="button" aria-label="Close theme picker">×</button></div>
+        <div class="theme-list" id="theme-list"></div>
+      </aside>
+    </div>
+    <script>
+      const themes = [
+        {
+          id: "default",
+          name: "Hermes Teal",
+          description: "Classic dark teal / the canonical Hermes look",
+          swatches: ["#041c1c", "#ffe6cb", "#ffbd38"],
+          vars: { "--field": "#041c1c", "--recessed": "#020c0d", "--cream": "#ffe6cb", "--white": "#fffaf3", "--muted": "#91aaa5", "--line": "rgb(255 230 203 / 22%)", "--line-soft": "rgb(255 230 203 / 10%)", "--amber": "#ffbd38", "--success": "#79e6a3", "--display": "Collapse, Georgia, serif", "--ui": "Rules, Arial, sans-serif", "--data": "JetBrains, monospace", "--filler-opacity": ".033", "--filler-blend": "difference", "--vignette-color": "#ffbd38", "--noise-blend": "color-dodge", "--noise-opacity": ".55" },
+        },
+        {
+          id: "default-large",
+          name: "Hermes Teal (Large)",
+          description: "Hermes Teal with bigger fonts and roomier spacing",
+          swatches: ["#041c1c", "#ffe6cb", "#ffbd38"],
+          vars: { "--field": "#041c1c", "--recessed": "#020c0d", "--cream": "#ffe6cb", "--white": "#fffaf3", "--muted": "#91aaa5", "--line": "rgb(255 230 203 / 22%)", "--line-soft": "rgb(255 230 203 / 10%)", "--amber": "#ffbd38", "--success": "#79e6a3", "--display": "Collapse, Georgia, serif", "--ui": "Rules, Arial, sans-serif", "--data": "JetBrains, monospace", "--filler-opacity": ".033", "--filler-blend": "difference", "--vignette-color": "#ffbd38", "--noise-blend": "color-dodge", "--noise-opacity": ".55" },
+        },
+        {
+          id: "midnight",
+          name: "Midnight",
+          description: "Deep blue-violet with cool accents",
+          swatches: ["#0a0a1f", "#d4c8ff", "#a78bfa"],
+          vars: { "--field": "#0a0a1f", "--recessed": "#050512", "--cream": "#d4c8ff", "--white": "#f4f0ff", "--muted": "#9e97bd", "--line": "rgb(212 200 255 / 22%)", "--line-soft": "rgb(212 200 255 / 10%)", "--amber": "#a78bfa", "--success": "#93c5fd", "--display": "Collapse, Georgia, serif", "--ui": "Arial, sans-serif", "--data": "JetBrains, monospace", "--filler-opacity": ".025", "--filler-blend": "screen", "--vignette-color": "#a78bfa", "--noise-blend": "screen", "--noise-opacity": ".42" },
+        },
+        {
+          id: "ember",
+          name: "Ember",
+          description: "Warm crimson and bronze / forge vibes",
+          swatches: ["#1a0a06", "#ffd8b0", "#f97316"],
+          vars: { "--field": "#1a0a06", "--recessed": "#0d0503", "--cream": "#ffd8b0", "--white": "#fff5e9", "--muted": "#b89a85", "--line": "rgb(255 216 176 / 22%)", "--line-soft": "rgb(255 216 176 / 10%)", "--amber": "#f97316", "--success": "#fbbf24", "--display": "Georgia, serif", "--ui": "Georgia, serif", "--data": "JetBrains, monospace", "--filler-opacity": ".026", "--filler-blend": "difference", "--vignette-color": "#f97316", "--noise-blend": "color-dodge", "--noise-opacity": ".48" },
+        },
+        {
+          id: "mono",
+          name: "Mono",
+          description: "Clean grayscale / minimal and focused",
+          swatches: ["#0e0e0e", "#eaeaea", "#9b9b9b"],
+          vars: { "--field": "#0e0e0e", "--recessed": "#050505", "--cream": "#eaeaea", "--white": "#ffffff", "--muted": "#989898", "--line": "rgb(234 234 234 / 22%)", "--line-soft": "rgb(234 234 234 / 10%)", "--amber": "#bcbcbc", "--success": "#d4d4d4", "--display": "Arial, sans-serif", "--ui": "Arial, sans-serif", "--data": "JetBrains, monospace", "--filler-opacity": ".018", "--filler-blend": "screen", "--vignette-color": "#ffffff", "--noise-blend": "screen", "--noise-opacity": ".28" },
+        },
+        {
+          id: "cyberpunk",
+          name: "Cyberpunk",
+          description: "Neon green on black / matrix terminal",
+          swatches: ["#040608", "#9bffcf", "#00ff88"],
+          vars: { "--field": "#040608", "--recessed": "#010202", "--cream": "#9bffcf", "--white": "#e6fff3", "--muted": "#6bbd99", "--line": "rgb(155 255 207 / 22%)", "--line-soft": "rgb(155 255 207 / 10%)", "--amber": "#00ff88", "--success": "#00ff88", "--display": "JetBrains, monospace", "--ui": "JetBrains, monospace", "--data": "JetBrains, monospace", "--filler-opacity": ".02", "--filler-blend": "screen", "--vignette-color": "#00ff88", "--noise-blend": "screen", "--noise-opacity": ".62" },
+        },
+        {
+          id: "rose",
+          name: "Rosé",
+          description: "Soft pink and warm ivory / easy on the eyes",
+          swatches: ["#1a0f15", "#ffd4e1", "#f9a8d4"],
+          vars: { "--field": "#1a0f15", "--recessed": "#0d070b", "--cream": "#ffd4e1", "--white": "#fff5f8", "--muted": "#b89ba7", "--line": "rgb(255 212 225 / 22%)", "--line-soft": "rgb(255 212 225 / 10%)", "--amber": "#f9a8d4", "--success": "#fbcfe8", "--display": "Georgia, serif", "--ui": "Georgia, serif", "--data": "JetBrains, monospace", "--filler-opacity": ".022", "--filler-blend": "difference", "--vignette-color": "#f9a8d4", "--noise-blend": "screen", "--noise-opacity": ".38" },
+        },
+      ];
+
+      const root = document.documentElement;
+      const body = document.body;
+      const overlay = document.getElementById("theme-overlay");
+      const themeList = document.getElementById("theme-list");
+      const activeThemeName = document.getElementById("active-theme-name");
+
+      function applyTheme(themeId) {
+        const theme = themes.find((item) => item.id === themeId) || themes[0];
+        Object.entries(theme.vars).forEach(([key, value]) => root.style.setProperty(key, value));
+        body.classList.toggle("theme-large", theme.id === "default-large");
+        root.dataset.theme = theme.id;
+        activeThemeName.textContent = theme.name;
+        localStorage.setItem("hermes-cv-theme", theme.id);
+        themeList.querySelectorAll(".theme-option").forEach((option) => option.classList.toggle("is-active", option.dataset.theme === theme.id));
+      }
+
+      themes.forEach((theme) => {
+        const option = document.createElement("button");
+        option.type = "button";
+        option.className = "theme-option";
+        option.dataset.theme = theme.id;
+        option.innerHTML = `<span class="theme-swatch"><i style="background:${theme.swatches[0]}"></i><i style="background:${theme.swatches[1]}"></i><i style="background:${theme.swatches[2]}"></i></span><span class="theme-copy"><strong>${theme.name}</strong><span>${theme.description}</span></span><span class="theme-check" aria-hidden="true">✓</span>`;
+        option.addEventListener("click", () => { applyTheme(theme.id); overlay.hidden = true; });
+        themeList.appendChild(option);
+      });
+
+      document.getElementById("theme-open").addEventListener("click", () => { overlay.hidden = false; });
+      document.getElementById("theme-close").addEventListener("click", () => { overlay.hidden = true; });
+      overlay.addEventListener("click", (event) => { if (event.target === overlay) overlay.hidden = true; });
+      document.addEventListener("keydown", (event) => { if (event.key === "Escape") overlay.hidden = true; });
+      document.getElementById("print-cv").addEventListener("click", () => window.print());
+      applyTheme(localStorage.getItem("hermes-cv-theme") || "default");
+    </script>
+  </body>
+</html>
