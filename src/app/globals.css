@@ -528,6 +528,38 @@ img {
   padding: clamp(4rem, 8vw, 8rem) clamp(1.2rem, 5vw, 5rem) clamp(2rem, 4vw, 3.5rem);
 }
 
+.play-section > .section-heading {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  isolation: isolate;
+  overflow: hidden;
+  min-height: clamp(26rem, 33vw, 36rem);
+  background: var(--field);
+}
+
+.play-section > .section-heading::before,
+.play-section > .section-heading::after {
+  position: absolute;
+  inset: 0;
+  content: "";
+  pointer-events: none;
+}
+
+.play-section > .section-heading::before {
+  z-index: -2;
+  background: url("/images/play-systems-banner-duotone.png") center / cover no-repeat;
+  opacity: 0.82;
+}
+
+.play-section > .section-heading::after {
+  z-index: -1;
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--field) 92%, transparent) 0%, color-mix(in srgb, var(--field) 80%, transparent) 43%, color-mix(in srgb, var(--field) 42%, transparent) 72%, color-mix(in srgb, var(--field) 25%, transparent) 100%),
+    linear-gradient(0deg, color-mix(in srgb, var(--field) 34%, transparent), transparent 56%);
+}
+
 .section-heading h2,
 .gear-copy h2,
 .sessions-intro h2,
@@ -1482,6 +1514,14 @@ html[data-loading-gate="active"] .portal-figure {
 
   .section-heading {
     padding: 4.5rem 1.15rem 2.5rem;
+  }
+
+  .play-section > .section-heading {
+    min-height: 30rem;
+  }
+
+  .play-section > .section-heading::before {
+    background-position: 58% center;
   }
 
   .section-heading h2,
