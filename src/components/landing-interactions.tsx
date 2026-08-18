@@ -54,7 +54,7 @@ export function HermesLoadingGate() {
       const fontsReady = document.fonts?.ready ?? Promise.resolve();
       const visualsReady = Promise.all([
         preloadImage("/images/logo.svg"),
-        preloadImage("/images/portal-figure.webp"),
+        preloadImage("/images/portal-figure-hero-toned.png"),
       ]);
 
       updateStage(0);

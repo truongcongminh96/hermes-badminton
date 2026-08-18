@@ -10,6 +10,7 @@ test("landing page renders and interactions work", async ({ page }, testInfo) =>
   const loader = page.locator(".hermes-loader");
   await expect(loader).toBeVisible();
   if (testInfo.project.name === "desktop") {
+    await expect(loader).toHaveAttribute("aria-label", /Căn lưới|Gọi cầu|Mở sân/);
     await page.screenshot({ path: "test-results/hermes-loading-desktop.png" });
   }
   await expect(loader).toHaveCount(0, { timeout: 4_000 });
@@ -18,6 +19,12 @@ test("landing page renders and interactions work", async ({ page }, testInfo) =>
   await expect(page).toHaveTitle(/Hermes Badminton/);
   await expect(page.getByRole("heading", { name: "PLAY THE NEXT POINT." })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Chọn nhịp chơi của bạn." })).toBeAttached();
+  await expect(page.locator(".kinetic-group")).toHaveCount(2);
+  await expect(page.locator(".style-allround h3 span")).toHaveCount(2);
+  const kineticGroupWidths = await page.locator(".kinetic-group").evaluateAll((groups) =>
+    groups.map((group) => group.getBoundingClientRect().width),
+  );
+  expect(Math.abs(kineticGroupWidths[0] - kineticGroupWidths[1])).toBeLessThanOrEqual(1);
   await expect(page.locator("[data-nextjs-dialog]")).toHaveCount(0);
 
   const revealSections = page.locator("[data-reveal]");
@@ -55,5 +62,18 @@ test("loading gate respects reduced motion", async ({ browser }) => {
   await page.goto("/", { waitUntil: "domcontentloaded" });
   await expect(page.locator(".hermes-loader")).toHaveCount(0, { timeout: 1_500 });
   await expect(page.getByRole("heading", { name: "PLAY THE NEXT POINT." })).toBeVisible();
+  await expect.poll(() => page.locator(".kinetic-track").evaluate((track) => getComputedStyle(track).animationName)).toBe("none");
   await context.close();
+});
+
+test("mobile navigation keeps mode and signup accessible", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "mobile");
+
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+  await expect(page.locator(".hermes-loader")).toHaveCount(0, { timeout: 4_000 });
+  await page.locator(".mobile-menu summary").click();
+
+  await expect(page.locator(".mobile-menu").getByRole("button", { name: /Mode/ })).toBeVisible();
+  await expect(page.locator(".mobile-menu").getByRole("link", { name: "Ghi danh" })).toBeVisible();
+  await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1)).toBe(true);
 });
