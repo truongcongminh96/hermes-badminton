@@ -192,10 +192,12 @@ export default function Home() {
                   <circle r="2" />
                 </g>
 
-                <g className="trajectory-shuttle" transform="translate(388 58) rotate(42)">
-                  <circle className="radar-ping-ring radar-ping-target" r="18" />
-                  <path d="M0 0L-22 8M0 0L-19 15M0 0L-14 21M-22 8L-14 21M-19 15L-8 25M-14 21L-3 28" />
-                  <ellipse cx="2" cy="-1" rx="7" ry="5" />
+                <g className="trajectory-target-node" transform="translate(388 58)">
+                  <circle className="radar-ping-ring radar-ping-target" r="20" />
+                  <circle className="radar-ping-ring radar-ping-secondary" r="11" />
+                  <circle r="4" fill="var(--amber)" stroke="var(--cream)" strokeWidth="1" />
+                  <path d="M-14 0H-6M6 0H14M0-14V-6M0 6V14" stroke="var(--amber)" strokeWidth="1.2" />
+                  <rect x="-10" y="-10" width="20" height="20" fill="none" stroke="var(--cream)" strokeWidth="0.8" strokeDasharray="3 3" opacity="0.6" />
                 </g>
 
                 <g className="trajectory-labels" aria-hidden="true">
