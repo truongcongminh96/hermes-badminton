@@ -1,30 +1,52 @@
+"use client";
+
+import { useState } from "react";
 import Image from "next/image";
-import { HermesLoadingGate, JoinForm, RevealController, ThemeToggle } from "@/components/landing-interactions";
+import {
+  HermesLoadingGate,
+  JoinForm,
+  RevealController,
+  ThemeToggle,
+  RacketMatcherModal,
+  CourtBookingModal,
+} from "@/components/landing-interactions";
 
 const playStyles = [
   {
+    code: "01",
     name: "Control",
+    spec: "290mm / 4U-G5",
+    tag: "Điều cầu & Cài lưới",
     title: "Giữ cầu trong tầm tay.",
     titleLines: null,
     copy: "Nhịp đánh chắc, mặt vợt ổn định và từng cú chạm có chủ đích.",
     className: "style-control",
   },
   {
+    code: "02",
     name: "Speed",
+    spec: "Head Light / 5U-G6",
+    tag: "Tốc độ phản tạt",
     title: "Đi trước nửa nhịp.",
     titleLines: null,
     copy: "Tăng tốc ở lưới, đổi hướng gọn và sẵn sàng cho đường cầu kế tiếp.",
     className: "style-speed",
   },
   {
+    code: "03",
     name: "Power",
+    spec: "Head Heavy / 3U-G5",
+    tag: "Tấn công dứt điểm",
     title: "Đánh xuống dứt khoát.",
     titleLines: null,
     copy: "Tải lực mượt, thân vợt phản hồi rõ và điểm chạm đầy tự tin.",
     className: "style-power",
   },
   {
+    code: "04",
     name: "All round",
+    spec: "Even Balance / 4U-G5",
+    tag: "Công thủ toàn diện",
     title: "Một cây vợt, mọi thế trận.",
     titleLines: ["Một cây vợt,", "mọi thế trận."],
     copy: "Cân bằng giữa tấn công, phòng thủ và những pha cầu dài cần sự bền bỉ.",
@@ -35,6 +57,15 @@ const playStyles = [
 const kineticWords = ["SERVE", "CLEAR", "DRIVE", "SMASH", "RESET"];
 
 export default function Home() {
+  const [matcherOpen, setMatcherOpen] = useState(false);
+  const [bookingOpen, setBookingOpen] = useState(false);
+  const [selectedSessionKey, setSelectedSessionKey] = useState("tue");
+
+  const openBookingFor = (sessionKey: string) => {
+    setSelectedSessionKey(sessionKey);
+    setBookingOpen(true);
+  };
+
   return (
     <>
       <HermesLoadingGate />
@@ -43,6 +74,18 @@ export default function Home() {
       <div className="backdrop-filler" aria-hidden="true" />
       <div className="backdrop-vignette" aria-hidden="true" />
       <div className="backdrop-noise" aria-hidden="true" />
+
+      {/* Interactive Modals */}
+      <RacketMatcherModal
+        isOpen={matcherOpen}
+        onClose={() => setMatcherOpen(false)}
+        onOpenBooking={() => openBookingFor("tue")}
+      />
+      <CourtBookingModal
+        isOpen={bookingOpen}
+        sessionKey={selectedSessionKey}
+        onClose={() => setBookingOpen(false)}
+      />
 
       <div className="site-shell">
         <header className="topbar">
@@ -61,7 +104,16 @@ export default function Home() {
 
           <div className="header-actions">
             <ThemeToggle />
-            <a className="header-cta" href="#join">Ghi danh</a>
+            <a
+              className="header-cta"
+              href="#join"
+              onClick={(e) => {
+                e.preventDefault();
+                openBookingFor("tue");
+              }}
+            >
+              Ghi danh
+            </a>
           </div>
 
           <details className="mobile-menu">
@@ -71,7 +123,15 @@ export default function Home() {
               <a href="#play">Lối chơi</a>
               <a href="#gear">Trang bị</a>
               <a href="#sessions">Lịch sân</a>
-              <a href="#join">Ghi danh</a>
+              <a
+                href="#join"
+                onClick={(e) => {
+                  e.preventDefault();
+                  openBookingFor("tue");
+                }}
+              >
+                Ghi danh
+              </a>
             </nav>
           </details>
         </header>
@@ -102,27 +162,31 @@ export default function Home() {
                   <path d="M76 286C154 238 246 232 342 276" />
                 </g>
 
+                <path className="trajectory-glow-path" pathLength="1" d="M104 330C178 312 220 214 268 150C304 102 342 70 388 58" />
                 <path className="trajectory-flight" pathLength="1" d="M104 330C178 312 220 214 268 150C304 102 342 70 388 58" />
 
                 <g className="trajectory-start" transform="translate(104 330)">
+                  <circle className="radar-ping-ring" r="14" />
                   <circle r="8" />
                   <circle r="2.5" />
                   <path d="M-17 0H-8M8 0H17M0-17V-8M0 8V17" />
                 </g>
 
                 <g className="trajectory-checkpoint" transform="translate(268 150)">
+                  <circle className="radar-ping-ring" r="12" />
                   <circle r="7" />
                   <circle r="2" />
                 </g>
 
                 <g className="trajectory-shuttle" transform="translate(388 58) rotate(42)">
+                  <circle className="radar-ping-ring radar-ping-target" r="18" />
                   <path d="M0 0L-22 8M0 0L-19 15M0 0L-14 21M-22 8L-14 21M-19 15L-8 25M-14 21L-3 28" />
                   <ellipse cx="2" cy="-1" rx="7" ry="5" />
                 </g>
 
                 <g className="trajectory-labels" aria-hidden="true">
                   <text x="88" y="318">01 / SERVE</text>
-                  <text x="278" y="142">02</text>
+                  <text x="278" y="142">02 / APEX</text>
                   <text x="358" y="92">03 / POINT</text>
                   <text className="trajectory-grid-detail" x="124" y="376">300</text>
                   <text className="trajectory-grid-detail" x="252" y="376">600</text>
@@ -140,12 +204,22 @@ export default function Home() {
                 Cộng đồng cầu lông cho người chơi muốn tập đúng, đánh hay và tìm đồng đội cùng nhịp.
               </p>
               <div className="hero-actions">
-                <a className="primary-button hero-ticket" href="#join">
+                <button
+                  className="primary-button hero-ticket"
+                  type="button"
+                  onClick={() => openBookingFor("tue")}
+                >
                   <span>Vào đội hình</span>
                   <small aria-hidden="true">01</small>
                   <i aria-hidden="true">→</i>
-                </a>
-                <a className="text-link" href="#play">Chọn lối chơi</a>
+                </button>
+                <button
+                  className="text-link hero-matcher-trigger"
+                  type="button"
+                  onClick={() => setMatcherOpen(true)}
+                >
+                  Tìm lối chơi & Vợt
+                </button>
               </div>
 
               <div className="hero-system-rail" aria-label="Hermes Club System, Hanoi 2026">
@@ -188,27 +262,124 @@ export default function Home() {
           </div>
 
           <section className="section play-section" id="play" data-reveal>
-            <div className="section-heading">
-              <p className="play-system-meta"><span>01</span> Play systems</p>
-              <div className="play-intro-copy">
-                <h2>
-                  <span>Chọn nhịp chơi</span>
-                  <span>của bạn.</span>
-                </h2>
-                <p>Mỗi người có một cách thắng điểm. Hermes giúp bạn gọi đúng tên và luyện đúng hướng.</p>
+            <div className="section-heading play-section-heading">
+              <div className="play-heading-left">
+                <p className="play-system-meta"><span>01</span> Play systems</p>
+                <div className="play-intro-copy">
+                  <h2>
+                    <span>Chọn nhịp chơi</span>
+                    <span>của bạn.</span>
+                  </h2>
+                  <p>Mỗi người có một cách thắng điểm. Hermes giúp bạn gọi đúng tên và luyện đúng hướng.</p>
+                </div>
+              </div>
+
+              <div className="play-telemetry-hud" aria-label="Bảng thông số phân tích nhịp đấu">
+                <div className="telemetry-header">
+                  <div className="telemetry-title-block">
+                    <span className="telemetry-tag">TACTICAL TELEMETRY</span>
+                    <span className="telemetry-status">
+                      <i className="pulse-dot" aria-hidden="true" /> LIVE HUD
+                    </span>
+                  </div>
+                  <span className="telemetry-coords">SYS // HN-2026</span>
+                </div>
+
+                <div className="telemetry-metric-box">
+                  <div className="metric-row">
+                    <span className="metric-label">Rally Pace</span>
+                    <strong className="metric-val">Fast / Aggressive</strong>
+                  </div>
+                  <div className="metric-row">
+                    <span className="metric-label">Tempo Index</span>
+                    <strong className="metric-val">175 - 210 BPM</strong>
+                  </div>
+                </div>
+
+                <div className="telemetry-bars">
+                  <span className="telemetry-bars-title">Tactical Allocation (4 Styles)</span>
+
+                  <div className="telemetry-bar-item">
+                    <div className="bar-labels">
+                      <span>01 / Control</span>
+                      <strong>25%</strong>
+                    </div>
+                    <div className="bar-track">
+                      <div className="bar-fill bar-fill-control" style={{ width: "25%" }} />
+                    </div>
+                  </div>
+
+                  <div className="telemetry-bar-item">
+                    <div className="bar-labels">
+                      <span>02 / Speed</span>
+                      <strong>25%</strong>
+                    </div>
+                    <div className="bar-track">
+                      <div className="bar-fill bar-fill-speed" style={{ width: "25%" }} />
+                    </div>
+                  </div>
+
+                  <div className="telemetry-bar-item">
+                    <div className="bar-labels">
+                      <span>03 / Power</span>
+                      <strong>25%</strong>
+                    </div>
+                    <div className="bar-track">
+                      <div className="bar-fill bar-fill-power" style={{ width: "25%" }} />
+                    </div>
+                  </div>
+
+                  <div className="telemetry-bar-item">
+                    <div className="bar-labels">
+                      <span>04 / All-round</span>
+                      <strong>25%</strong>
+                    </div>
+                    <div className="bar-track">
+                      <div className="bar-fill bar-fill-allround" style={{ width: "25%" }} />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="telemetry-footer">
+                  <span>Hermes Tactical Engine</span>
+                  <span className="telemetry-ver">v2.6 // Active Lineup</span>
+                </div>
               </div>
             </div>
             <div className="style-grid">
               {playStyles.map((style) => (
-                <article className={`style-card ${style.className}`} key={style.name}>
-                  <span className="style-name">{style.name}</span>
-                  <div>
+                <article
+                  className={`style-card ${style.className}`}
+                  key={style.name}
+                  onClick={() => setMatcherOpen(true)}
+                  style={{ cursor: "pointer" }}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      setMatcherOpen(true);
+                    }
+                  }}
+                  aria-label={`Xem chi tiết lối chơi ${style.name}`}
+                >
+                  <div className="style-card-header">
+                    <span className="style-name">{style.name}</span>
+                    <span className="style-spec-tag">{style.spec}</span>
+                  </div>
+                  <div className="style-card-body">
                     <h3>
                       {style.titleLines
                         ? style.titleLines.map((line) => <span key={line}>{line}</span>)
                         : style.title}
                     </h3>
                     <p>{style.copy}</p>
+                  </div>
+                  <div className="style-card-footer">
+                    <span className="style-tactical-focus">{style.tag}</span>
+                    <span className="style-card-indicator" aria-hidden="true">
+                      <i>✦</i>
+                    </span>
                   </div>
                 </article>
               ))}
@@ -235,7 +406,13 @@ export default function Home() {
                 <div><span>Thân vợt</span><strong>Phản hồi rõ</strong></div>
                 <div><span>Cảm giác</span><strong>Hợp tay</strong></div>
               </div>
-              <a className="text-link" href="#join">Nhận tư vấn chọn vợt</a>
+              <button
+                className="text-link gear-consult-btn"
+                type="button"
+                onClick={() => setMatcherOpen(true)}
+              >
+                Nhận tư vấn chọn vợt
+              </button>
             </div>
           </section>
 
@@ -246,21 +423,84 @@ export default function Home() {
               <p>Buổi chơi có người điều phối, ghép trình độ phù hợp và luôn dành thời gian cho kỹ thuật.</p>
             </div>
             <div className="session-board">
-              <article className="session-featured">
-                <div className="session-day"><span>Thứ ba</span><strong>After work</strong></div>
+              <article
+                className="session-featured session-clickable"
+                onClick={() => openBookingFor("tue")}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    openBookingFor("tue");
+                  }
+                }}
+                aria-label="Đăng ký buổi Thứ ba After work"
+              >
+                <div className="session-header-row">
+                  <div className="session-day"><span>Thứ ba</span><strong>After work</strong></div>
+                  <div className="session-status-badge">
+                    <span className="pulse-dot" aria-hidden="true" />
+                    <span>Còn 2 chỗ</span>
+                  </div>
+                </div>
                 <p>Đánh đôi luân phiên, nhịp vừa và ưu tiên người mới tham gia.</p>
-                <span className="session-level">Mới chơi / Phong trào</span>
+                <div className="session-footer-row">
+                  <span className="session-level">Mới chơi / Phong trào</span>
+                  <span className="session-time">19:30 - 21:30 // Bấm để đặt slot →</span>
+                </div>
               </article>
               <div className="session-stack">
-                <article>
-                  <div className="session-day"><span>Thứ năm</span><strong>Fast court</strong></div>
+                <article
+                  className="session-clickable"
+                  onClick={() => openBookingFor("thu")}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      openBookingFor("thu");
+                    }
+                  }}
+                  aria-label="Xem đội hình buổi Thứ năm Fast court"
+                >
+                  <div className="session-header-row">
+                    <div className="session-day"><span>Thứ năm</span><strong>Fast court</strong></div>
+                    <div className="session-status-badge session-badge-calm">
+                      <span className="status-dot-calm" aria-hidden="true" />
+                      <span>Đủ đội hình</span>
+                    </div>
+                  </div>
                   <p>Nhịp nhanh, bài cầu ngắn và các trận đấu có mục tiêu.</p>
-                  <span className="session-level">Trung bình / Khá</span>
+                  <div className="session-footer-row">
+                    <span className="session-level">Trung bình / Khá</span>
+                    <span className="session-time">20:00 - 22:00 // Xem danh sách →</span>
+                  </div>
                 </article>
-                <article>
-                  <div className="session-day"><span>Cuối tuần</span><strong>Club mix</strong></div>
+                <article
+                  className="session-clickable"
+                  onClick={() => openBookingFor("weekend")}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      openBookingFor("weekend");
+                    }
+                  }}
+                  aria-label="Đăng ký buổi Cuối tuần Club mix"
+                >
+                  <div className="session-header-row">
+                    <div className="session-day"><span>Cuối tuần</span><strong>Club mix</strong></div>
+                    <div className="session-status-badge session-badge-all">
+                      <span className="pulse-dot-dark" aria-hidden="true" />
+                      <span>Mở đăng ký</span>
+                    </div>
+                  </div>
                   <p>Gặp gỡ cả đội, đánh tự do và thử trang bị mới.</p>
-                  <span className="session-level">Mọi trình độ</span>
+                  <div className="session-footer-row">
+                    <span className="session-level">Mọi trình độ</span>
+                    <span className="session-time">Sáng CN / 08:30 // Đặt slot →</span>
+                  </div>
                 </article>
               </div>
             </div>

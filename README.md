@@ -1,21 +1,26 @@
 # Hermes Badminton
 
-Prototype landing page cho cộng đồng cầu lông Hermes Badminton, dựng trên visual language và toàn bộ resource gốc của Paper Signal.
+A prototype landing page for the Hermes Badminton community, built using the visual language and original assets of Paper Signal.
+Neo-Brutalist Editorial & High-Fashion Athletics (akin to the aesthetics of Aimé Leon Dore, Arc'teryx System_A, Off-White, and Rapha)
 
-## Chạy local
+Neo-Brutalist Editorial & High-Fashion Athletics (akin to the aesthetics of Aimé Leon Dore, Arc'teryx System_A, Off-White, and Rapha).
+Retro-futuristic / Technical Blueprint (presenting badminton through the lens of technical specifications, trajectories, court coordinates, and tactical pacing).
+Manga/Etching Graphic Novel (evoking storytelling, the warrior spirit, and club culture).
+
+## Run local
 
 ```bash
 pnpm install
 pnpm dev
 ```
 
-Mở [http://localhost:3000](http://localhost:3000).
+Open [http://localhost:3000](http://localhost:3000).
 
-## Kiểm tra
+## Test
 
 ```bash
 pnpm build
 pnpm exec playwright test
 ```
 
-Resource gốc được giữ nguyên trong `public/fonts`, `public/images` và `design-concepts/implementation/paper-signal-source.html`.
+The original resources are kept in `public/fonts`, `public/images` and `design-concepts/implementation/paper-signal-source.html`.
