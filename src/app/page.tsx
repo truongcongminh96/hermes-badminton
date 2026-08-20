@@ -10,6 +10,7 @@ import {
   RacketMatcherModal,
   CourtBookingModal,
 } from "@/components/landing-interactions";
+import { HeroFigurePortal } from "@/components/hero-figure-portal";
 
 const playStyles = [
   {
@@ -56,10 +57,18 @@ const playStyles = [
 
 const kineticWords = ["SERVE", "CLEAR", "DRIVE", "SMASH", "RESET"];
 
+const heroCharacters = [
+  { id: "01", name: "Athlete Stance", src: "/images/hero-character-1.jpg", label: "01 / Dáng đứng toàn thân" },
+  { id: "02", name: "Courtside Casual", src: "/images/hero-character-2.jpg", label: "02 / Bán thân năng động" },
+  { id: "03", name: "Editorial Lookbook", src: "/images/hero-character-3.jpg", label: "03 / Tựa khung thanh lịch" },
+  { id: "04", name: "Frontal Portal", src: "/images/hero-character-4.jpg", label: "04 / Giữ khung chính diện" },
+];
+
 export default function Home() {
   const [matcherOpen, setMatcherOpen] = useState(false);
   const [bookingOpen, setBookingOpen] = useState(false);
   const [selectedSessionKey, setSelectedSessionKey] = useState("tue");
+  const [activeHeroChar, setActiveHeroChar] = useState(2);
 
   const openBookingFor = (sessionKey: string) => {
     setSelectedSessionKey(sessionKey);
@@ -141,7 +150,12 @@ export default function Home() {
             <div className="hero-copy">
               <div className="hero-system-meta" aria-label="Sân 01, trạng thái sẵn sàng">
                 <p><span>Court</span><strong>01</strong></p>
-                <p><span>Status</span><strong>Ready</strong></p>
+                <p>
+                  <span>Status</span>
+                  <strong>
+                    <i className="pulse-dot" aria-hidden="true" /> Ready
+                  </strong>
+                </p>
               </div>
 
               <svg
@@ -231,17 +245,37 @@ export default function Home() {
 
             <div className="hero-visual" aria-label="Hermes, hình tượng đại diện của câu lạc bộ">
               <span className="hero-monogram" aria-hidden="true">HB</span>
-              <Image
-                className="portal-figure"
-                src="/images/portal-figure-hero-toned.png"
-                alt="Chân dung minh họa đại diện cho cộng đồng Hermes Badminton"
-                fill
-                unoptimized
-                priority
-                sizes="(max-width: 760px) 100vw, 44vw"
+              <div className="portal-atmosphere-overlay" aria-hidden="true" />
+              <div className="portal-hud-bracket portal-hud-tl" aria-hidden="true">
+                <span>PORTAL_01 // {heroCharacters[activeHeroChar].name.toUpperCase()}</span>
+              </div>
+              <div className="portal-hud-bracket portal-hud-tr" aria-hidden="true">
+                <span>COORD 104.8°N</span>
+              </div>
+              <HeroFigurePortal
+                characters={heroCharacters}
+                activeIndex={activeHeroChar}
+                onSelectCharacter={(idx) => setActiveHeroChar(idx)}
+                autoPlayInterval={4500}
               />
               <div className="visual-caption">
-                <span>Club system</span>
+                <div className="char-switcher-rail">
+                  <span>FIGURE:</span>
+                  <div className="char-switcher-btns">
+                    {heroCharacters.map((char, index) => (
+                      <button
+                        key={char.id}
+                        type="button"
+                        className={`char-switcher-btn ${index === activeHeroChar ? "is-active" : ""}`}
+                        onClick={() => setActiveHeroChar(index)}
+                        aria-label={`Chọn nhân vật ${char.label}`}
+                        title={char.label}
+                      >
+                        {char.id}
+                      </button>
+                    ))}
+                  </div>
+                </div>
                 <strong>Hanoi / 2026</strong>
               </div>
             </div>

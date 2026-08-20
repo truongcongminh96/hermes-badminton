@@ -3,7 +3,7 @@
 import type { CSSProperties, FormEvent } from "react";
 import { useEffect, useState } from "react";
 
-const loadingStages = ["Căng dây", "Căn lưới", "Gọi cầu", "Mở sân"];
+const loadingStages = ["Căng dây & Căn lưới", "Gọi cầu & Định vị", "Đo nhịp & Quét radar", "Mở sân thi đấu"];
 
 const wait = (duration: number) => new Promise<void>((resolve) => window.setTimeout(resolve, duration));
 
@@ -28,44 +28,41 @@ function preloadImage(src: string) {
 
 export function HermesLoadingGate() {
   const [stage, setStage] = useState(0);
+  const [progress, setProgress] = useState(12);
   const [exiting, setExiting] = useState(false);
   const [visible, setVisible] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const stepDuration = reducedMotion ? 0 : 190;
-    const minimumDuration = reducedMotion ? 0 : 1_650;
+    const stepDuration = reducedMotion ? 0 : 80;
+    const minimumDuration = reducedMotion ? 0 : 650;
     const startedAt = performance.now();
 
-    const updateStage = (nextStage: number) => {
-      if (!cancelled) setStage(nextStage);
+    const updateStage = (nextStage: number, pct: number) => {
+      if (!cancelled) {
+        setStage(nextStage);
+        setProgress(pct);
+      }
     };
 
     const finish = async () => {
       if (cancelled) return;
+      setProgress(100);
       setExiting(true);
       delete document.documentElement.dataset.loadingGate;
-      await wait(reducedMotion ? 0 : 520);
+      await wait(reducedMotion ? 0 : 300);
       if (!cancelled) setVisible(false);
     };
 
     const boot = async () => {
-      const fontsReady = document.fonts?.ready ?? Promise.resolve();
-      const visualsReady = Promise.all([
-        preloadImage("/images/logo.svg"),
-        preloadImage("/images/portal-figure-hero-toned.png"),
-      ]);
-
-      updateStage(0);
+      updateStage(0, 25);
       await wait(stepDuration);
-      updateStage(1);
-      await Promise.race([fontsReady, wait(720)]);
+      updateStage(1, 50);
       await wait(stepDuration);
-      updateStage(2);
-      await Promise.race([visualsReady, wait(980)]);
+      updateStage(2, 75);
       await wait(stepDuration);
-      updateStage(3);
+      updateStage(3, 98);
       await wait(Math.max(0, minimumDuration - (performance.now() - startedAt)));
       await finish();
     };
@@ -86,25 +83,126 @@ export function HermesLoadingGate() {
       aria-live="polite"
       aria-label={`Đang chuẩn bị sân. ${loadingStages[stage]}.`}
       style={{
-        "--loader-progress": `${(stage + 1) / loadingStages.length}`,
-        "--loader-progress-position": `${((stage + 1) / loadingStages.length) * 100}%`,
+        "--loader-progress": `${progress / 100}`,
+        "--loader-progress-position": `${progress}%`,
       } as CSSProperties}
     >
       <div className="loader-grid" aria-hidden="true" />
       <div className="loader-inner">
-        <div className="loader-brand">
-          <img src="/images/logo.svg" alt="" />
-          <span>Hermes / Badminton</span>
+        {/* Top Header Rail */}
+        <div className="loader-header-rail">
+          <div className="loader-brand">
+            <img src="/images/logo.svg" alt="" />
+            <div>
+              <span>HERMES // TACTICAL CALIBRATION</span>
+              <small>SECTOR HANOI // 2026</small>
+            </div>
+          </div>
+          <div className="loader-header-telemetry">
+            <span className="loader-fps"><i className="pulse-dot" aria-hidden="true" /> SYSTEM LIVE</span>
+            <strong className="loader-pct-counter">{progress}%</strong>
+          </div>
         </div>
-        <div className="loader-court" aria-hidden="true">
-          <span className="loader-monogram">HB</span>
-          <span className="loader-axis"><i /></span>
-          <span className="loader-marker" />
+
+        {/* Center Court Calibration Blueprint */}
+        <div className="loader-court-viewport" aria-hidden="true">
+          <svg className="loader-court-svg" viewBox="0 0 800 480">
+            <defs>
+              <pattern id="netPattern" width="6" height="6" patternUnits="userSpaceOnUse">
+                <path d="M0 3h6M3 0v6" fill="none" stroke="currentColor" strokeWidth="0.6" strokeOpacity="0.4" />
+              </pattern>
+            </defs>
+
+            {/* Background Measurement Guides */}
+            <g className="court-dimension-lines">
+              <path d="M60 20H740M60 14V26M740 14V26" />
+              <path d="M20 40V440M14 40H26M14 440H26" />
+              <text x="400" y="16" textAnchor="middle">13.40 M // FULL COURT LENGTH</text>
+              <text x="18" y="244" transform="rotate(-90 18 244)" textAnchor="middle">6.10 M // DOUBLES</text>
+            </g>
+
+            {/* Main Court Lines */}
+            <g className="court-lines-group">
+              {/* Outer Boundary */}
+              <rect x="60" y="40" width="680" height="400" className="court-outer-rect" />
+              
+              {/* Singles Sidelines */}
+              <line x1="60" y1="76" x2="740" y2="76" />
+              <line x1="60" y1="404" x2="740" y2="404" />
+              
+              {/* Doubles Long Service Lines */}
+              <line x1="110" y1="40" x2="110" y2="440" strokeDasharray="4 6" />
+              <line x1="690" y1="40" x2="690" y2="440" strokeDasharray="4 6" />
+
+              {/* Short Service Lines */}
+              <line x1="330" y1="40" x2="330" y2="440" />
+              <line x1="470" y1="40" x2="470" y2="440" />
+
+              {/* Center Service Line */}
+              <line x1="60" y1="240" x2="330" y2="240" />
+              <line x1="470" y1="240" x2="740" y2="240" />
+
+              {/* Center Net */}
+              <rect x="396" y="34" width="8" height="412" fill="url(#netPattern)" className="court-net-mesh" />
+              <line x1="400" y1="28" x2="400" y2="452" className="court-net-cord" />
+              <circle cx="400" cy="34" r="3.5" className="court-post" />
+              <circle cx="400" cy="446" r="3.5" className="court-post" />
+            </g>
+
+            {/* Active Calibration Sweep Arc & Shuttle Trajectory */}
+            <path
+              className={`court-smash-trajectory ${stage >= 1 ? "is-active" : ""}`}
+              d="M160 360 C 260 300, 360 80, 400 90 C 460 105, 580 200, 640 280"
+              pathLength="1"
+            />
+
+            {/* Shuttle Icon at apex/point */}
+            <g className={`court-shuttle-marker ${stage >= 1 ? "is-active" : ""}`} transform="translate(640 280)">
+              <circle className="radar-ping-ring" r="16" />
+              <circle className="radar-ping-ring radar-ping-secondary" r="28" />
+              <circle cx="0" cy="0" r="3" fill="var(--amber)" />
+              <line x1="-12" y1="0" x2="12" y2="0" stroke="var(--amber)" strokeWidth="1" />
+              <line x1="0" y1="-12" x2="0" y2="12" stroke="var(--amber)" strokeWidth="1" />
+              <text x="18" y="4" className="court-target-coord">IMPACT [X:640 Y:280]</text>
+            </g>
+
+            {/* Corner Target Ticks */}
+            <g className="court-target-brackets">
+              <path d="M50 50H60V40M750 50H740V40M50 430H60V440M750 430H740V440" />
+            </g>
+
+            {/* Court Watermark Monogram */}
+            <text x="400" y="270" textAnchor="middle" className="court-monogram-watermark">HB</text>
+          </svg>
         </div>
-        <div className="loader-readout">
-          <p>Prepare the court</p>
-          <strong>{loadingStages[stage]}</strong>
-          <span>{String(stage + 1).padStart(2, "0")} / {String(loadingStages.length).padStart(2, "0")}</span>
+
+        {/* Bottom Readout & Telemetry Box */}
+        <div className="loader-readout-panel">
+          <div className="readout-stage-header">
+            <div className="readout-step-badge">
+              <span>CALIBRATION</span>
+              <strong>STAGE 0{stage + 1} // 04</strong>
+            </div>
+            <span className="readout-current-title">{loadingStages[stage]}</span>
+          </div>
+
+          {/* Micro Progress Track */}
+          <div className="readout-progress-track">
+            <div className="readout-progress-fill" style={{ width: `${progress}%` }} />
+            <div className="readout-ticks">
+              <span className={progress >= 25 ? "is-hit" : ""}>25%</span>
+              <span className={progress >= 50 ? "is-hit" : ""}>50%</span>
+              <span className={progress >= 75 ? "is-hit" : ""}>75%</span>
+              <span className={progress >= 100 ? "is-hit" : ""}>100%</span>
+            </div>
+          </div>
+
+          {/* Sub Telemetry Metrics */}
+          <div className="readout-telemetry-row">
+            <span>TENSION: <b>28.5 LBS</b></span>
+            <span>SHUTTLE: <b>HERMES AEROSPEED 01</b></span>
+            <span>GRID: <b>SÂN 01 YONEX MAT</b></span>
+          </div>
         </div>
       </div>
     </div>

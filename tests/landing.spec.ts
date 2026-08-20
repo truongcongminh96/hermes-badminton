@@ -25,7 +25,7 @@ test("landing page renders and interactions work", async ({ page }, testInfo) =>
     groups.map((group) => group.getBoundingClientRect().width),
   );
   expect(Math.abs(kineticGroupWidths[0] - kineticGroupWidths[1])).toBeLessThanOrEqual(1);
-  await expect(page.locator("[data-nextjs-dialog]")).toHaveCount(0);
+  await expect(page.locator("[data-nextjs-dialog-overlay]")).toHaveCount(0);
 
   const revealSections = page.locator("[data-reveal]");
   for (let index = 0; index < await revealSections.count(); index += 1) {
